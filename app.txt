@@ -1,0 +1,80 @@
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native'
+import NearbyDrivers from './components/screens/NearbyDrivers'
+import Driver from './components/screens/Driver'
+import Info from './components/screens/Info'
+import Login from './components/screens/Login'
+import Signup from './components/screens/Signup';
+import LoginAs from './components/screens/LoginAs';
+import DriverProfile from './components/screens/DriverProfile';
+import Location from './components/screens/Confirm';
+import  { auth } from  './config/firebase';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, getAuth } from "firebase/auth";
+import { useState, useEffect } from 'react';
+//import DriverConfirm from './components/screens/DriverInfo';
+
+
+
+export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [screen, setScreen] = useState(null);
+
+  const Stack = createNativeStackNavigator();
+  const auth= getAuth();
+
+  useEffect(() => {
+   
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log(loggedIn);
+      if (user) {
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+
+
+  return (
+    <NavigationContainer>
+  <Stack.Navigator
+  >
+    {loggedIn ? (
+      <>
+       
+        <Stack.Screen name="Nearby Drivers" component={NearbyDrivers} />
+        <Stack.Screen name="Driver" component={Info} options={{ headerShown: false }} />
+        <Stack.Screen name="Hire Driver" component={Driver} options={{ headerShown: false }} />
+        <Stack.Screen name="Driver Profile" component={DriverProfile} options={{ headerShown: false }} />
+
+       
+        
+        
+      </>
+    ) : (
+      <>
+         <Stack.Screen name="LoginAs" component={LoginAs} options={{ headerShown: false }} />
+        <Stack.Screen name="Driver Login" component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name="Driver Signup" component={Signup} options={{ headerShown: false }} />
+      </>
+    )}
+  </Stack.Navigator>
+</NavigationContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
